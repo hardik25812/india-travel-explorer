@@ -1,0 +1,111 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ landmark.name }} - India Travel Explorer{% endblock %}
+
+{% block content %}
+<div class="landmark-detail">
+    <div class="landmark-header" style="background-image: url('{{ url_for('static', filename=landmark.image_path) }}');">
+        <div class="landmark-header-overlay"></div>
+        <div class="container landmark-header-content">
+            <h1 class="display-4 fw-bold">{{ landmark.name }}</h1>
+            <p class="lead">{{ landmark.location }}</p>
+            <div class="d-flex align-items-center">
+                <div class="me-3">
+                    <span class="badge bg-success">Popularity: {{ landmark.popularity }}/5</span>
+                </div>
+                {% if current_user.is_authenticated %}
+                <form method="POST" action="{{ url_for('save_place', landmark_id=landmark.id) }}" class="d-inline">
+                    <button type="submit" class="btn btn-light">
+                        <i class="fas fa-bookmark me-2"></i>Save
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+    
+    <div class="container">
+        <div class="landmark-info">
+            <div class="row">
+                <div class="col-md-8">
+                    <h2 class="mb-4">About {{ landmark.name }}</h2>
+                    <p class="lead">{{ landmark.description }}</p>
+                    
+                    {% if landmark.guide_info %}
+                    <div class="guide-info mt-4">
+                        <h3><i class="fas fa-info-circle me-2"></i>Visitor Information</h3>
+                        <p>{{ landmark.guide_info }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="emergency-info mt-4">
+                        <h3><i class="fas fa-exclamation-triangle me-2"></i>Emergency Information</h3>
+                        <div class="row">
+                            {% if landmark.emergency_numbers %}
+                                {% for service, number in landmark.emergency_numbers.items() %}
+                                <div class="col-md-6 mb-2">
+                                    <strong>{{ service|title }}:</strong> 
+                                    <a href="tel:{{ number }}" class="text-danger">{{ number }}</a>
+                                </div>
+                                {% endfor %}
+                            {% else %}
+                                <div class="col-12">
+                                    <p>No emergency information available.</p>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="col-md-4">
+                    <div class="card mb-4">
+                        <div class="card-body">
+                            <h3 class="card-title">Location</h3>
+                            <div id="map" style="height: 200px; background-color: #eee; display: flex; align-items: center; justify-content: center;">
+                                <p>Map will be displayed here</p>
+                            </div>
+                            <p class="mt-2">{{ landmark.location }}</p>
+                        </div>
+                    </div>
+                    
+                    {% if current_user.is_authenticated %}
+                    <div class="card">
+                        <div class="card-body">
+                            <h3 class="card-title">Add Notes</h3>
+                            <form method="POST" action="{{ url_for('save_place', landmark_id=landmark.id) }}">
+                                <div class="mb-3">
+                                    <textarea class="form-control" name="notes" rows="3" placeholder="Add your personal notes about this place..."></textarea>
+                                </div>
+                                <button type="submit" class="btn btn-primary w-100">
+                                    <i class="fas fa-save me-2"></i>Save with Notes
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+            
+            <div class="mt-5">
+                <h3 class="mb-4">Nearby Attractions</h3>
+                <div class="row">
+                    {% for nearby in nearby_landmarks %}
+                        {% if nearby.id != landmark.id %}
+                        <div class="col-md-4 mb-4">
+                            <div class="card">
+                                <img src="{{ url_for('static', filename=nearby.image_path) }}" class="card-img-top" alt="{{ nearby.name }}">
+                                <div class="card-body">
+                                    <h5 class="card-title">{{ nearby.name }}</h5>
+                                    <p class="card-text">{{ nearby.description[:100] }}{% if nearby.description|length > 100 %}...{% endif %}</p>
+                                    <a href="{{ url_for('landmark_detail', landmark_id=nearby.id) }}" class="btn btn-sm btn-outline-primary">Learn More</a>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
