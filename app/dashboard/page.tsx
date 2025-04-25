@@ -22,8 +22,8 @@ const mockData = {
     { id: "2", landmark_id: "2", landmarks: { name: "India Gate" } },
   ],
   emergencyContacts: [
-    { id: "1", name: "John Doe", phone: "+1234567890", relationship: "Family" },
-    { id: "2", name: "Jane Smith", phone: "+0987654321", relationship: "Friend" },
+    { id: "1", name: "Rajesh Kumar", phone: "+1234567890", relationship: "Family" },
+    { id: "2", name: "Priya Sharma", phone: "+0987654321", relationship: "Friend" },
   ],
   recommendedLandmarks: [
     {
@@ -62,8 +62,27 @@ export default function DashboardPage() {
 
     // Check if user is logged in
     const checkAuth = () => {
+      // Check both localStorage keys for compatibility
+      const currentUser = localStorage.getItem('india_travel_current_user')
+      const demoUser = localStorage.getItem('demoUser')
+      
+      // If we have a user in either storage location and no user in state, set it manually
+      if ((currentUser || demoUser) && !user) {
+        try {
+          // Try to parse the user from either storage location
+          const userData = currentUser ? JSON.parse(currentUser) : JSON.parse(demoUser || '{}')
+          if (userData && userData.id) {
+            // This will trigger a re-render with the user set
+            console.log('Setting user from localStorage:', userData)
+            // No need to set user here as the SupabaseProvider should handle it
+          }
+        } catch (e) {
+          console.error('Error parsing user data:', e)
+        }
+      }
+      
       // If not loading and no user, redirect to login
-      if (!isLoading && !user) {
+      if (!isLoading && !user && !currentUser && !demoUser) {
         router.push("/login")
       }
     }

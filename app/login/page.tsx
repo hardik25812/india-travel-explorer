@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Label } from "@/components/ui/label"
 import { useToast } from "@/components/ui/use-toast"
 import { createClientSupabaseClient } from "@/lib/supabase"
+import { useSupabase } from "@/components/SupabaseProvider"
 import { FcGoogle } from "react-icons/fc"
 
 export default function LoginPage() {
@@ -19,34 +20,37 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false)
   const router = useRouter()
   const { toast } = useToast()
-  const supabase = createClientSupabaseClient()
+  const { signIn } = useSupabase()
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault()
     setIsLoading(true)
 
     try {
-      // For demo purposes, allow login with any credentials
-      // This is just for the preview - in a real app, you would use Supabase auth
+      // Direct localStorage manipulation for demo purposes
+      // This is a simplified approach for the demo
+      if (email === 'demo@example.com' && password === 'password') {
+        // Create a demo user
+        const demoUser = {
+          id: 'demo-user-1',
+          email: 'demo@example.com',
+          name: 'Demo User'
+        }
+        
+        // Store in both localStorage keys to ensure compatibility
+        localStorage.setItem('india_travel_current_user', JSON.stringify(demoUser))
+        localStorage.setItem('demoUser', JSON.stringify(demoUser))
+        
+        toast({
+          title: "Login successful",
+          description: "You have been logged in successfully.",
+        })
 
-      // Simulate successful login
-      toast({
-        title: "Login successful",
-        description: "You have been logged in successfully.",
-      })
-
-      // Store a demo user in localStorage to simulate authentication
-      localStorage.setItem(
-        "demoUser",
-        JSON.stringify({
-          id: "demo-user-id",
-          email: email || "demo@example.com",
-          name: "Demo User",
-        }),
-      )
-
-      // Force a hard navigation to the dashboard to ensure page reload
-      window.location.href = "/dashboard"
+        // Force a hard navigation to ensure page reload and state reset
+        window.location.href = '/dashboard'
+      } else {
+        throw new Error('Invalid login credentials')
+      }
     } catch (error: any) {
       toast({
         title: "Login failed",
@@ -60,23 +64,25 @@ export default function LoginPage() {
 
   const handleGoogleLogin = async () => {
     try {
-      // For demo purposes, simulate Google login
-      localStorage.setItem(
-        "demoUser",
-        JSON.stringify({
-          id: "google-user-id",
-          email: "google-user@example.com",
-          name: "Google User",
-        }),
-      )
-
+      // Direct localStorage manipulation for demo purposes
+      // Create a demo Google user
+      const googleUser = {
+        id: 'google-user-1',
+        email: 'demo@example.com',
+        name: 'Demo Google User'
+      }
+      
+      // Store in both localStorage keys to ensure compatibility
+      localStorage.setItem('india_travel_current_user', JSON.stringify(googleUser))
+      localStorage.setItem('demoUser', JSON.stringify(googleUser))
+      
       toast({
         title: "Login successful",
         description: "You have been logged in with Google successfully.",
       })
 
-      // Force a hard navigation to the dashboard to ensure page reload
-      window.location.href = "/dashboard"
+      // Force a hard navigation to ensure page reload and state reset
+      window.location.href = '/dashboard'
     } catch (error: any) {
       toast({
         title: "Login failed",

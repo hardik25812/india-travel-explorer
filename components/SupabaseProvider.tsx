@@ -83,13 +83,31 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
   const signIn = async (email: string, password: string) => {
     try {
-      const { data, error } = await supabase.auth.signIn({ email, password })
-      
-      if (data?.user) {
-        setUser(data.user as User)
+      // Check if the method exists and call it correctly
+      if (typeof supabase.auth.signIn === 'function') {
+        const { data, error } = await supabase.auth.signIn({ email, password })
+        
+        if (data?.user) {
+          setUser(data.user as User)
+        }
+        
+        return { error }
+      } else {
+        // Fallback to direct localStorage manipulation for demo purposes
+        console.log('Using fallback authentication')
+        const users = JSON.parse(localStorage.getItem('india_travel_users') || '[]')
+        const user = users.find((u: any) => u.email === email && u.password === password)
+        
+        if (user) {
+          // Remove password before storing in session
+          const { password: _, ...safeUser } = user
+          localStorage.setItem('india_travel_current_user', JSON.stringify(safeUser))
+          setUser(safeUser as User)
+          return { error: null }
+        }
+        
+        return { error: { message: 'Invalid login credentials' } }
       }
-      
-      return { error }
     } catch (error) {
       console.error("Error signing in:", error)
       return { error }
@@ -98,13 +116,44 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
 
   const signUp = async (email: string, password: string, name?: string) => {
     try {
-      const { data, error } = await supabase.auth.signUp({ email, password, name })
-      
-      if (data?.user) {
-        setUser(data.user as User)
+      // Check if the method exists and call it correctly
+      if (typeof supabase.auth.signUp === 'function') {
+        const { data, error } = await supabase.auth.signUp({ email, password, name })
+        
+        if (data?.user) {
+          setUser(data.user as User)
+        }
+        
+        return { error }
+      } else {
+        // Fallback to direct localStorage manipulation for demo purposes
+        console.log('Using fallback registration')
+        const users = JSON.parse(localStorage.getItem('india_travel_users') || '[]')
+        
+        // Check if user already exists
+        if (users.some((u: any) => u.email === email)) {
+          return { error: { message: 'User with this email already exists' } }
+        }
+        
+        // Create new user
+        const newUser = {
+          id: `user-${Date.now()}`,
+          email,
+          name,
+          password
+        }
+        
+        // Add to users collection
+        users.push(newUser)
+        localStorage.setItem('india_travel_users', JSON.stringify(users))
+        
+        // Login the user (remove password)
+        const { password: _, ...safeUser } = newUser
+        localStorage.setItem('india_travel_current_user', JSON.stringify(safeUser))
+        setUser(safeUser as User)
+        
+        return { error: null }
       }
-      
-      return { error }
     } catch (error) {
       console.error("Error signing up:", error)
       return { error }
@@ -112,11 +161,21 @@ export function SupabaseProvider({ children }: { children: React.ReactNode }) {
   }
   
   const signOut = async () => {
-    await supabase.auth.signOut()
-    setUser(null)
-
-    // Redirect to home page after logout
-    window.location.href = "/"
+    try {
+      if (typeof supabase.auth.signOut === 'function') {
+        await supabase.auth.signOut()
+      } else {
+        // Fallback for demo mode
+        localStorage.removeItem('india_travel_current_user')
+      }
+      
+      setUser(null)
+      
+      // Redirect to home page after logout
+      window.location.href = "/"
+    } catch (error) {
+      console.error("Error signing out:", error)
+    }
   }
 
   const value = {

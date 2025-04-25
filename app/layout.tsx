@@ -11,7 +11,7 @@ import { SupabaseProvider } from "@/components/SupabaseProvider"
 const inter = Inter({ subsets: ["latin"] })
 
 export const metadata: Metadata = {
-  title: "India Travel Explorer",
+  title: "Journey Junction",
   description: "Discover the wonders of India with our travel recommendation system",
     generator: 'v0.dev'
 }
