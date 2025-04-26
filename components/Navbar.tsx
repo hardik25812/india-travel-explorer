@@ -47,6 +47,11 @@ export default function Navbar() {
               </Link>
             </NavigationMenuItem>
             <NavigationMenuItem>
+              <Link href="/amenities" legacyBehavior passHref>
+                <NavigationMenuLink className={navigationMenuTriggerStyle()}>Amenities</NavigationMenuLink>
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem>
               <NavigationMenuTrigger>Explore</NavigationMenuTrigger>
               <NavigationMenuContent>
                 <ul className="grid gap-3 p-4 md:w-[400px] lg:w-[500px] lg:grid-cols-2">
@@ -172,6 +177,15 @@ export default function Navbar() {
                     onClick={toggleMenu}
                   >
                     Search
+                  </Link>
+                </li>
+                <li>
+                  <Link
+                    href="/amenities"
+                    className={cn("block py-2 text-lg", pathname === "/amenities" ? "font-bold text-primary" : "")}
+                    onClick={toggleMenu}
+                  >
+                    Amenities
                   </Link>
                 </li>
                 <li>
